@@ -8,7 +8,7 @@ set.seed(447528)
 
 # Import selected genotypes
 planning <- read_excel(here::here("data","planning.xlsx"),  
-                       sheet = "selections")
+                       sheet = "selections") #added here code
 
 
 # Format dataframe to match JL previous randomization
@@ -113,7 +113,7 @@ print(winterOatPea_2025, n= nrow(winterOatPea_2025))
 
 
 #  Save it
-write.csv(winterOatPea_2025, here::here("output","winterOatPea_2025.csv"))
+write.csv(winterOatPea_2025, here::here("output","winterOatPea_2025.csv")) #added here code
 
 
   
