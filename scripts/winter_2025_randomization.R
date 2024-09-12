@@ -67,7 +67,7 @@ for (blockNum in 1:nBlksNY){
 
 
 # Some quick checks
-monoPea <- dplyr::filter(winterOatDesign, accession=="Blaze")
+monoPea <- dplyr::filter, accession=="Blaze")
 table(monoPea$block)
 
 
@@ -88,7 +88,7 @@ df <- winterOatPea_2025_2 %>%
 
 winterOatPea_2025 <- winterOatPea_2025_2 %>% 
   left_join(df) %>% 
-  ungroup() ## join the df with the origional 
+  ungroup() ## join the df with the original 
 
 # Randomly assign if the first or second plot in the pair is the monocrop or intercrop
   
