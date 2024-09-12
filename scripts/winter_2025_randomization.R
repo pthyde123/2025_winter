@@ -39,6 +39,11 @@ plotsNY <- dplyr::tibble(
   state="NY") %>%
   mutate(crop=dplyr::if_else(grepl("Blaze", accession), "Pea", "Oat"))
 
+
+plotsNY <- plotsNY %>% 
+  left_join(oatPlanning, join_by(accession))
+  
+
   
 blkOP <- AlgDesign::optBlock(frml=as.formula("~ accession"),
                              withinData=plotsNY,
@@ -68,10 +73,12 @@ for (blockNum in 1:nBlksNY){
 
 
 # Some quick checks
-monoPea <- dplyr::filter, accession=="Blaze")
+monoPea <- dplyr::filter(winterOatDesign, accession=="Blaze")
 table(monoPea$block)
 
+headrow <- dplyr::filter(winterOatDesign, source=="headrow")
 
+table(headrow$block)
 
 
 # Make it a planting plan
