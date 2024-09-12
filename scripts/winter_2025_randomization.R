@@ -1,13 +1,14 @@
 library(AlgDesign)
 library(tidyverse)
 library(readxl)
+library(here)
 
 ss <- floor(runif(1, 10000, 1000000))
 set.seed(447528) 
 
 # Import selected genotypes
-planning <- read_excel("data/planning.xlsx", 
-                       sheet = "selections")
+planning <- read_excel(here::here("data","planning.xlsx"),  
+                       sheet = "selections") #added here code
 
 
 # Format dataframe to match JL previous randomization
@@ -112,7 +113,7 @@ print(winterOatPea_2025, n= nrow(winterOatPea_2025))
 
 
 #  Save it
-write_csv(winterOatPea_2025, "output/winterOatPea_2025.csv")
+write.csv(winterOatPea_2025, here::here("output","winterOatPea_2025.csv")) #added here code
 
 
   
