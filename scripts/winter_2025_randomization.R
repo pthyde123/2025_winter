@@ -113,7 +113,7 @@ print(winterOatPea_2025, n= nrow(winterOatPea_2025))
 
 
 #  Save it
-write_csv(winterOatPea_2025,"output/winterOatPea_2025.csv")
+write.csv(winterOatPea_2025, here::here("output","winterOatPea_2025.csv"))
 
 
   
