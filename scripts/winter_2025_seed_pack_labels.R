@@ -18,5 +18,5 @@ winterOatPea_2025_plot_HR %>%
   mutate(PlotNo = plotNo) %>% 
   arrange(source,oatName) %>% 
   select(source,plotNo,oatName,peaName) %>% 
-  write.csv( "output/winter_2025_envelopes.csv")
+  write.csv( "output/winter_2025_envelopes.csv", row.names = F)
 
