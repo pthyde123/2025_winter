@@ -40,5 +40,5 @@ randomization  <- blocks %>%
   relocate(block,plot,accession)
 
 
-write.csv(randomization,"output/SOAP_randomization.csv")
+write.csv(randomization,"output/SOAP_randomization.csv",row.names = FALSE)
 
