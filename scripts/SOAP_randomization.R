@@ -42,3 +42,16 @@ randomization  <- blocks %>%
 
 write.csv(randomization,"output/SOAP_randomization.csv",row.names = FALSE)
 
+
+
+##### formatted out put for printing labels
+## arranged by entry, for word mail merge labels
+
+
+randomization %>% 
+  arrange(Entry) %>% 
+  write.csv("output/SOAP_labels.csv",row.names = FALSE)
+
+
+
+
