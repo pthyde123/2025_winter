@@ -53,5 +53,12 @@ randomization %>%
   write.csv("output/SOAP_labels.csv",row.names = FALSE)
 
 
+##### list of seed from UK to add in 
 
+
+randomization %>% 
+  select(block,plot,accession,Entry,"NY Seed") %>% 
+  filter(`NY Seed` != "seed available") %>% 
+  arrange(Entry) %>% 
+  write.csv("output/SOAP_from_UK.csv",row.names = FALSE)
 
