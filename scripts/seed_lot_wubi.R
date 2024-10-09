@@ -143,4 +143,4 @@ seed_for_wubi <- to_send %>%
 
 
 
-write.csv(seed_for_wubi,"output/wubi_seed_avaliable")
+write.csv(seed_for_wubi,"output/wubi_seed_avaliable.csv")
