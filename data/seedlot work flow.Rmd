@@ -1,0 +1,134 @@
+---
+title: "Seed Lots Work Flow"
+output: html_document
+date: "2024-10-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
+```
+
+<br>
+
+## Packages
+```{r,  echo=TRUE}
+library(tidyverse)
+library(readxl)
+library(kableExtra)
+library(ggrepel)
+library(readr)
+
+```
+
+## Winter 2024 seedlots
+#### Seelots are created in T3 by transfering 'Grain Weight g' plot data to seed lots 
+#### Create seedlots from a Trial
+###### Trial can be specific managament factor subset of a trial (doesn't seem to work, freezes up)
+###### Can use accession, plot, or sublot
+###### {accession_name}-{trial_name}-plot_number
+
+Enter a template for naming each new seedlot. The following variables (surrounded by curly braces) can be used in the template and the value of that variable will be replaced.
+
+trial_name
+accession_name
+plot_name
+plot_number
+rep
+block 
+index - an incrementing index number, starting with 1
+
+#### {accession_name}-{trial_name}-PLOT_{plot_number}
+This format work well, it is best to have the plot number identified so that the harvest bag can be easily located. 
+
+```{r,  echo=FALSE}
+
+library(readr)
+winter_2024_accession_max_seedlots <- read_csv("data/winter_2024_accession_max_seedlots.csv")%>% 
+  mutate(seedlot = str_c(germplasmName,"-",observationUnitName)) %>%
+  mutate(seed_weight_g = `Grain weight - g|CO_350:0005123`) %>%
+  mutate(plotNumber = as.numeric(str_sub(observationUnitName,48))) %>% 
+  mutate(trial = str_sub(observationUnitName,1,41)) %>%
+  select(observationUnitName,germplasmName,seed_weight_g,seedlot,plotNumber,trial)
+
+
+library(readxl)
+Cornell_WinterOatFounders_2024_Headrow_phenotypes <- read_excel("data/Cornell_WinterOatFounders_2024_Headrow_phenotypes.xlsx") %>% 
+ mutate(seed_weight_g = `Grain weight - g|CO_350:0005123`) %>% 
+  mutate(seedlot = str_c(str_sub(observationUnitName,1,38),"-",germplasmName,"-1")) %>%
+  mutate(plotNumber = as.numeric(str_sub(observationUnitName,40))) %>% 
+  mutate(trial = str_sub(observationUnitName,1,38)) %>%
+  select(observationUnitName,germplasmName,seed_weight_g,seedlot,plotNumber,trial)
+
+
+seed_lots <- Cornell_WinterOatFounders_2024_Headrow_phenotypes %>% 
+  bind_rows(winter_2024_accession_max_seedlots) 
+```
+
+
+
+```{r,echo=FALSE}
+
+winter_2024_accession_max_seedlots %>% 
+  select(seedlot, germplasmName, seed_weight_g)
+
+
+```
+### Ithaca 2025 trial seed needed and used
+When the trial name is loooooooong it gets cumbersome to use.  Let's try and keep it shorter in the future.
+
+
+
+### Ithaca 2025 trial seed needed and used
+
+
+
+
+```{r,echo=FALSE}
+
+plot_2025 <- read_excel("data/planning.xlsx", 
+                       sheet = "selections")  %>% 
+  mutate(trial = "plot_2025") %>% 
+  mutate(seed_needed_g = plots_to_plant * 40.5) %>% 
+  select(trial,germplasmName, plots_to_plant, seedlot,seed_needed_g)
+
+guardrows <- read_excel("data/planning.xlsx", 
+                       sheet = "guardrows")%>%
+  mutate(plots_to_plant =1) %>% 
+  mutate(seed_needed_g = plots_to_plant * 40.5) %>% 
+  mutate(seedlot = str_c(germplasmName,"-",observationUnitName)) %>% 
+  mutate(seed_used = plots_to_plant * 40.5) %>% 
+  mutate(trial = "guardrows") %>% 
+  select(trial,germplasmName, plots_to_plant, seedlot,seed_needed_g)
+
+plot_increase <- read_csv("output/ plot_increase _randomization.csv") %>% 
+  mutate(plots_to_plant =1) %>% 
+  mutate(seedlot = str_c(substr(observationUnitName, start = 1, stop = 38),"-",germplasmName,"-1")) %>% 
+  mutate(seed_needed_g = plots_to_plant * 40.5) %>% 
+  mutate(trial = "plot_increase") %>% 
+  select(trial,germplasmName, plots_to_plant, seedlot,seed_needed_g)
+
+headrow_increase <- read_csv("output/ headrow_increase _randomization.csv") %>% 
+  mutate(plots_to_plant =2) %>% 
+  mutate(seed_needed_g = plots_to_plant * 6) %>% 
+  mutate(seedlot = str_c(substr(observationUnitName, start = 1, stop = 38),"-",germplasmName,"-1")) %>% 
+  mutate(trial = "headrow_increase") %>% 
+  select(trial,germplasmName, plots_to_plant, seedlot,seed_needed_g)
+
+winter_2025_seed_used <- bind_rows(plot_2025,
+          guardrows,
+          plot_increase,
+          headrow_increase) %>% 
+  group_by(seedlot) %>% 
+  summarise(seed_used_g = sum(seed_needed_g))
+
+
+
+
+
+```
+
+```{r,echo=TRUE}
+
+winter_2025_seed_used
+
+```

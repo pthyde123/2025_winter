@@ -1,0 +1,83 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-10-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+## Winter 2024 seedlots
+#### Seelots are created in T3 by transfering 'Grain Weight g' plot data to seed lots 
+#### Create seedlots from a Trial
+###### Trial can be specific managament factor subset of a trial (doesn't seem to work, freezes up)
+###### Can use accession, plot, or sublot
+######{accession_name}-{trial_name}-plot_number
+
+Enter a template for naming each new seedlot. The following variables (surrounded by curly braces) can be used in the template and the value of that variable will be replaced.
+
+trial_name
+accession_name
+plot_name
+plot_number
+rep
+block
+index - an incrementing index number, starting with 1
+
+### {accession_name}-{trial_name}-plot_number
+This format work well, it is best to have the plot number identified so that the harvest bag can be easily located.  
+
+## Packages
+```{r, echo=TRUE}
+library(tidyverse)
+library(readxl)
+library(kableExtra)
+library(ggrepel)
+library(readr)
+
+```
+
+
+```{r, echo=TRUE}
+library(tidyverse)
+library(readr)
+library(readr)
+winter_2024_accession_max_seedlots <- read_csv("winter_2024_accession_max_seedlots.csv")%>% 
+  mutate(seedlot = str_c(germplasmName,"-",observationUnitName)) %>%
+  mutate(seed_weight_g = `Grain weight - g|CO_350:0005123`) %>% 
+  select(observationUnitName,germplasmName,seed_weight_g,seedlot)
+
+
+
+
+```
+
+
+
+
+
+
+
+

@@ -10,17 +10,19 @@ library(readr)
 library(readr)
 winter_2024_accession_max_seedlots <- read_csv("data/winter_2024_accession_max_seedlots.csv")%>% 
   mutate(seedlot = str_c(germplasmName,"-",observationUnitName)) %>%
-  mutate(seed_weight_g = `Grain weight - g|CO_350:0005123`) %>% 
-  select(observationUnitName,germplasmName,seed_weight_g,seedlot)
+  mutate(seed_weight_g = `Grain weight - g|CO_350:0005123`) %>%
+  mutate(plotNumber = as.numeric(str_sub(observationUnitName,48))) %>% 
+  mutate(trial = str_sub(observationUnitName,1,41)) %>%
+  select(observationUnitName,germplasmName,seed_weight_g,seedlot,plotNumber,trial)
 
 
 library(readxl)
 Cornell_WinterOatFounders_2024_Headrow_phenotypes <- read_excel("data/Cornell_WinterOatFounders_2024_Headrow_phenotypes.xlsx") %>% 
   mutate(seed_weight_g = `Grain weight - g|CO_350:0005123`) %>% 
-  mutate(seedlot = str_c(substr(observationUnitName, start = 1, stop = 38),"-",germplasmName,"-1")) %>% 
-  select(observationUnitName,germplasmName,seed_weight_g,seedlot)
-
-
+  mutate(seedlot = str_c(str_sub(observationUnitName,1,38),"-",germplasmName,"-1")) %>%
+  mutate(plotNumber = as.numeric(str_sub(observationUnitName,40))) %>% 
+  mutate(trial = str_sub(observationUnitName,1,38)) %>%
+  select(observationUnitName,germplasmName,seed_weight_g,seedlot,plotNumber,trial)
 
 seed_lots <- Cornell_WinterOatFounders_2024_Headrow_phenotypes %>% 
   bind_rows(winter_2024_accession_max_seedlots) 
@@ -31,8 +33,8 @@ seed_lots <- Cornell_WinterOatFounders_2024_Headrow_phenotypes %>%
 
 plot_2025 <- read_excel("data/planning.xlsx", 
                        sheet = "selections")  %>% 
-  mutate(seed_needed_g = plots_to_plant * 40.5) %>% 
   mutate(trial = "plot_2025") %>% 
+  mutate(seed_needed_g = plots_to_plant * 40.5) %>% 
   select(trial,germplasmName, plots_to_plant, seedlot,seed_needed_g)
 
 
@@ -59,7 +61,7 @@ plot_increase <- read_csv("output/ plot_increase _randomization.csv") %>%
 
 headrow_increase <- read_csv("output/ headrow_increase _randomization.csv") %>% 
   mutate(plots_to_plant =2) %>% 
-  mutate(seed_needed_g = plots_to_plant * 6) %>% 
+  mutate(seed_needed_g = plots_to_plant * 3) %>% 
   mutate(seedlot = str_c(substr(observationUnitName, start = 1, stop = 38),"-",germplasmName,"-1")) %>% 
   mutate(trial = "headrow_increase") %>% 
   select(trial,germplasmName, plots_to_plant, seedlot,seed_needed_g)
@@ -111,14 +113,13 @@ df <- OatAccessionsAvailableFromUSDA_Ithaca %>%
   mutate("source" = substr(`Sample Name`, start = 1, stop = 2)) # the first 2 letters of the sample name indicate where each accession is from, this will be used to determine if we move forward with the accesssion
 
 
-
-unique(df$source)  # List of the source we will send "NF","PI","CI" accessions. These are from the Noble Foundation, or GRIN.  
+unique(df$source)  # List of the source we will send "NF","PI","CI","Cl","Au" accessions. These are from the Noble Foundation, or GRIN, AAFC Winnipeg.  
 
 
 accessions_to_send <- OatAccessionsAvailableFromUSDA_Ithaca %>% 
   filter(`Sample Group` != "spring-2023-oat-pea") %>% 
   mutate("source" = substr(`Sample Name`, start = 1, stop = 2)) %>% 
-  filter(source %in% c("NF","PI","CI")) %>% 
+  filter(source %in% c("NF","PI","CI","Cl","Au")) %>% 
   print(n=nrow(OatAccessionsAvailableFromUSDA_Ithaca))
 
 
@@ -137,9 +138,55 @@ to_send <- accessions_to_send %>%
   print(n= nrow(accessions_to_send))
 
 
+
+
+plot_2025
+plot_increase
+headrow_increase
+
+winter_2025_accessions <- bind_rows(plot_2025,
+          guardrows,
+          plot_increase,
+          headrow_increase)
+
+
+winter_2025_accessions <- unique(winter_2025_accessions$germplasmName)
+
+
+winter_2025_accessions <- bind_rows(plot_2025,
+          guardrows,
+          plot_increase,
+          headrow_increase) 
+
+
+winter_2025_accessions <- unique(winter_2025_accessions)
+
+
+seed_lots <- Cornell_WinterOatFounders_2024_Headrow_phenotypes %>% 
+  bind_rows(winter_2024_accession_max_seedlots) 
+
+
 seed_for_wubi <- to_send %>% 
   left_join(seed_lots_10.9.24,by=join_by(accession==germplasmName)) %>% 
-  select(germplasmName, seedlot, seed_available, observationUnitName)
+  select(accession, seedlot, seed_available, observationUnitName,plotNumber,trial) %>%
+  filter(accession %in% c(unique(winter_2025_accessions$germplasmName))) %>% 
+  arrange(trial,plotNumber) %>% 
+  filter(!observationUnitName %in% c("Cornell_WinterOatFounders_2024_Headrow_87","Cornell_WinterOatFounders_2024_Headrow_90")) %>% 
+  distinct(accession, .keep_all = TRUE)
+
+  print(n=nrow(to_send))
+
+
+Cornell_WinterOatFounders_2024_GH_phenotypes <- read_csv("data/Cornell_WinterOatFounders_2024_GH_phenotypes.csv") %>% 
+  mutate(GH_seed = `Grain weight - g|CO_350:0005123`) %>% 
+  mutate(GH_heading = `Heading - %|CO_350:0005127`) %>% 
+  select(observationUnitName,germplasmName, germplasmSynonyms,plotNumber, GH_seed, GH_heading) 
+
+
+seed_for_wubi <- seed_for_wubi %>% 
+  left_join(Cornell_WinterOatFounders_2024_GH_phenotypes, by=join_by(accession == germplasmName)) 
+
+
 
 
 
