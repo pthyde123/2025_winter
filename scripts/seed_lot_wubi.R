@@ -174,7 +174,7 @@ seed_for_wubi <- to_send %>%
   filter(!observationUnitName %in% c("Cornell_WinterOatFounders_2024_Headrow_87","Cornell_WinterOatFounders_2024_Headrow_90")) %>% 
   distinct(accession, .keep_all = TRUE)
 
-  print(n=nrow(to_send))
+  
 
 
 Cornell_WinterOatFounders_2024_GH_phenotypes <- read_csv("data/Cornell_WinterOatFounders_2024_GH_phenotypes.csv") %>% 
@@ -184,10 +184,14 @@ Cornell_WinterOatFounders_2024_GH_phenotypes <- read_csv("data/Cornell_WinterOat
 
 
 seed_for_wubi <- seed_for_wubi %>% 
-  left_join(Cornell_WinterOatFounders_2024_GH_phenotypes, by=join_by(accession == germplasmName)) 
+  left_join(Cornell_WinterOatFounders_2024_GH_phenotypes, by=join_by(accession == germplasmName)) %>% 
+  select(accession,seedlot,observationUnitName.x,plotNumber.x,trial,seed_available,GH_seed.x) %>% 
+  mutate("seed_to_send_g" = 8) %>% 
+  mutate("seed_left" = seed_available-seed_to_send_g)
+
+
+write.csv(seed_for_wubi,"output/wubi_seed_avaliable.csv",row.names = FALSE)
 
 
 
 
-
-write.csv(seed_for_wubi,"output/wubi_seed_avaliable.csv")

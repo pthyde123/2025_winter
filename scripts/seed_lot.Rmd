@@ -20,7 +20,9 @@ library(readr)
 
 ```
 
-## 
+<br>
+
+<br>
 
 ### Overview of general steps
 
@@ -34,11 +36,13 @@ library(readr)
 
 5.  **Pack plot envelops**
 
-<br>
+6.  **Subtract seed weight from seedlot**
 
 <br>
 
-#### 1. Create seedlots from a Trial
+<br>
+
+### **1. Create seedlots from an existing trial**
 
 Seedlots are created in T3 by transferring 'Grain Weight g' plot data to
 seed lots. When creating the seedlot a template is used for naming the
@@ -63,12 +67,13 @@ Sources for seed lots can be accession, plot, or subplot
 -   Functionally, we source the seed by ***plot*** and ***greatest seed
     weight*** for each given accession. These seed bags are separated
     out and used to fill seed packs. That way we are dealing with fewer
-    bags. For example the 2024 winter trial had 378 plots but 96
-    accession. We worked with 96 bags.
+    bags. For example, the 2024 winter trial had 378 plots but 94
+    accession. We work with 94 bags, have the in a separate box or tray
+    organized by plot number. This allows for easy access.
 -   Sub-setting the seedlot sorce by management factor looks to be
     available but doesn't seem to work, it freezes up. This could be
-    useful in if we wanted to select only mono-crop plots for seed
-    purity purposes.
+    useful if we wanted to select only mono-crop plots for seed purity
+    purposes.
 
 <br>
 
@@ -85,8 +90,6 @@ The following variables can also be used in the template
 \| rep block
 
 \| index - an incrementing index number, starting with 1
-
-<br>
 
 <br>
 
@@ -111,9 +114,10 @@ winter_2024_accession_max_seedlots <- read_csv("data/winter_2024_accession_max_s
 library(readxl)
 Cornell_WinterOatFounders_2024_Headrow_phenotypes <- read_excel("data/Cornell_WinterOatFounders_2024_Headrow_phenotypes.xlsx") %>% 
  mutate(seed_weight_g = `Grain weight - g|CO_350:0005123`) %>% 
-  mutate(seedlot = str_c(str_sub(observationUnitName,1,38),"-",germplasmName,"-1")) %>%
+  mutate(seedlot_real = str_c(str_sub(observationUnitName,1,38),"-",germplasmName,"-1")) %>%
   mutate(plotNumber = as.numeric(str_sub(observationUnitName,40))) %>% 
   mutate(trial = str_sub(observationUnitName,1,38)) %>%
+  mutate(seedlot = str_c(germplasmName,"-",(str_sub(observationUnitName,1,38)),"-PLOT_")) %>%
   select(observationUnitName,germplasmName,seed_weight_g,seedlot,plotNumber,trial)
 
 
@@ -198,17 +202,22 @@ new_trial <- read_excel("data/planning.xlsx",
   mutate(new_trial = "plot_2025") %>% 
   mutate(seed_needed_g = plots_to_plant * 40.5) %>%
   mutate(source_trial = str_c(substr(observationUnitName, start = 1, stop = 41))) %>% 
-  mutate(seedlot = str_c(germplasmName,"-",observationUnitName)) %>% 
-  select(new_trial, germplasmName, source_trial, plots_to_plant, seed_needed_g) 
+  mutate(seedlot_no_plot = gsub("(PLOT_).*","\\1",.$seedlot)) %>%  
+  select(new_trial, germplasmName, source_trial, plots_to_plant, seed_needed_g,seedlot_no_plot) 
 
 new_trial %>% 
+  select(new_trial, germplasmName, source_trial, plots_to_plant, seed_needed_g) %>% 
   kable(align = "l") %>% 
   kable_classic(full_width=F,position = "left")%>% 
   scroll_box(width = "900px", height = "300px")
 
 ```
 
-### 3. Join new trial accessions to seedlot accessions
+<br>
+
+<br>
+
+### **3. Join new trial accessions to seedlot accessions**
 
 **New Trial**
 
@@ -216,10 +225,10 @@ Create `seedlot_no_plot` by concatenating `germplasm` and
 `source_trail`. `Seedlot_no_plot` should match the seedlot names
 excluding the plot number.
 
-```{r,echo=TRUE}
+```{r,echo=FALSE}
 
 new_trial %>% 
-  mutate(seedlot_no_plot = str_c(germplasmName,"-", source_trial,"-PLOT_" )) %>%  kable(align = "l") %>% 
+  kable(align = "l") %>% 
   kable_classic(full_width=F,position = "left")%>% 
   scroll_box(width = "900px", height = "300px") 
   
@@ -231,7 +240,7 @@ new_trial %>%
 
 Create `seedlot_no_plot` from seed lot by removing plot number
 
-```{r,echo=TRUE}
+```{r,echo=FALSE}
 
 seed_lots %>% 
   select(seedlot, germplasmName, seed_weight_g) %>% 
@@ -249,17 +258,25 @@ seed_lots %>%
 
 ```{r, echo=FALSE}
 
+temp_SL <- seed_lots %>% 
+  select(seedlot, germplasmName, seed_weight_g) %>% 
+    mutate(seedlot_no_plot = gsub("(PLOT_).*","\\1",seed_lots$seedlot))
+
 bulk_seed <- new_trial %>% 
-  mutate(seedlot_no_plot = str_c(germplasmName,"-", source_trial,"-PLOT_" )) %>% 
-  left_join((seed_lots %>% 
-    select(seedlot, germplasmName, seed_weight_g) %>% 
-    mutate(seedlot_no_plot = gsub("(PLOT_).*","\\1",seed_lots$seedlot) )),by=join_by(seedlot_no_plot)) %>% 
-  select(new_trial,source_trial,plots_to_plant,seed_needed_g,seedlot,seed_weight_g) %>% 
+  left_join(temp_SL,by=join_by(seedlot_no_plot)) %>% 
+  mutate(accession = germplasmName.x) %>% 
+  select(new_trial,source_trial,plots_to_plant,seed_needed_g,seedlot,seed_weight_g,accession) %>% 
   mutate(seed_left = seed_weight_g - seed_needed_g) 
 
-bulk_seed %>%  kable(align = "l") %>% 
+
+
+
+bulk_seed %>%  
+  kable(align = "l") %>% 
   kable_classic(full_width=F,position = "left")%>% 
-  scroll_box(width = "900px", height = "300px") 
+  scroll_box(width = "900px", height = "300px")  
+
+
 ```
 
 <br>
@@ -285,12 +302,11 @@ Bulk seed bags contain the seed for all plots of a given accession and
 will be divided into plot envelopes in the next step. Labels need to
 have **source plot number**. Sort them by Source_trial and plot number
 
-```{r}
+```{r, echo=FALSE}
 
 bulkseed_2 <- bulk_seed %>% 
-  select(seedlot, seed_needed_g, plots_to_plant,source_trial) %>% 
+  select(seedlot, seed_needed_g, plots_to_plant,source_trial,accession) %>% 
   mutate(source_plot = as.numeric(gsub(".*PLOT_","",.$seedlot))) %>% 
-  mutate(accession = gsub("-.*","",.$seedlot)) %>% 
   mutate(source_trial = gsub("-PLOT_.*","",.$seedlot)) %>%
   mutate(source_trial = gsub(".*-","",.$source_trial)) %>%
   arrange(source_trial,source_plot)  
@@ -346,6 +362,8 @@ winterOatPea_2025_plot_HR %>%
 
 ```
 
+<br>
+
 **Join Randomization with Bulk_Seed by accession**
 
 ```{r,echo=FALSE}
@@ -359,7 +377,10 @@ winterOatPea_2025_plot_HR %>%
   mutate(PlotNo = plotNo) %>% 
   mutate(source = seedlot) %>% 
   arrange(source_plot) %>% 
-  select(source,plotNo,oatName,peaName)
+  select(source,plotNo,oatName,peaName) %>% 
+  kable(align = "l") %>% 
+  kable_classic(full_width=F,position = "left")%>% 
+  scroll_box(width = "900px", height = "300px")
 
 ```
 
@@ -367,3 +388,16 @@ Save as .csv without row.names *write.csv(
 "output/winter_2025_envelopes.csv", row.names = FALSE)*
 
 Put it on a thumb drive and take it to the printer.
+
+<br>
+
+<br>
+
+### 6. Subtract weight used from seedlot
+
+When the trial is uploaded to T3/Oat include the source seedlot names
+and weight of seed. It will then be removed from the seedlot.
+
+<br>
+
+<br>
