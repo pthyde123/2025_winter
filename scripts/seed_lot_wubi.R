@@ -28,6 +28,8 @@ seed_lots <- Cornell_WinterOatFounders_2024_Headrow_phenotypes %>%
   bind_rows(winter_2024_accession_max_seedlots) 
 
 
+
+
 ###  Ithaca 2025 trial seed needed and used
 
 
@@ -190,8 +192,26 @@ seed_for_wubi <- seed_for_wubi %>%
   mutate("seed_left" = seed_available-seed_to_send_g)
 
 
+### add synonyms that were used on genotyping plate
+
+library(readr)
+Nobel_Lauren_line_synonyms <- read_csv("data/Nobel_Lauren_line_synonyms.csv")
+library(readxl)
+WOF_synonyms <- read_excel("data/WOF_meta.xlsx") %>% 
+  select(accession,synonym)
+
+synonyms <- bind_rows(Nobel_Lauren_line_synonyms,WOF_synonyms)
+
+seed_for_wubi <- seed_for_wubi %>% 
+  left_join(synonyms)
+
+
+
+
+
+
 write.csv(seed_for_wubi,"output/wubi_seed_avaliable.csv",row.names = FALSE)
 
 
-
+write.csv(seed_lots,"output/seedlots.csv",row.names = FALSE)
 
