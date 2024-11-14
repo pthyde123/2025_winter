@@ -9,10 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Peter Hyde" />
 
-<meta name="date" content="2024-10-10" />
+<meta name="date" content="2024-11-14" />
 
-<title>Seed Lots Work Flow</title>
+<title>Randomization</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,87 +350,137 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Seed Lots Work Flow</h1>
-<h4 class="date">2024-10-10</h4>
+<h1 class="title toc-ignore">Randomization</h1>
+<h4 class="author">Peter Hyde</h4>
+<h4 class="date">2024-11-14</h4>
 
 </div>
 
 
 <p><br></p>
-<div id="packages" class="section level2">
-<h2>Packages</h2>
-<pre class="r"><code>library(tidyverse)
-library(readxl)
-library(kableExtra)
-library(ggrepel)
-library(readr)</code></pre>
+<p><br></p>
+<div id="overview-of-general-steps" class="section level3">
+<h3>Overview of general steps</h3>
+<ol style="list-style-type: decimal">
+<li><p><strong>Import a list of accessions that are to be used in
+trial</strong></p></li>
+<li><p><strong>Select the list and name accessions</strong></p></li>
+<li><p><strong>Set blocks, and accessions per block</strong></p></li>
+<li><p><strong>Randomize</strong></p></li>
+<li><p><strong>Format for printing envelopes</strong></p></li>
+</ol>
+<p><br></p>
+<p><br></p>
 </div>
-<div id="winter-2024-seedlots" class="section level2">
-<h2>Winter 2024 seedlots</h2>
-<div id="seelots-are-created-in-t3-by-transfering-grain-weight-g-plot-data-to-seed-lots" class="section level4">
-<h4>Seelots are created in T3 by transfering ‘Grain Weight g’ plot data
-to seed lots</h4>
+<div id="import-a-list-of-t3oat-accessions" class="section level3">
+<h3>1. Import a list of T3/oat accessions</h3>
+<pre><code>## # A tibble: 455 × 5
+##    Entry Name      Pedigree                                  `NY Seed` accession
+##    &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;                                     &lt;chr&gt;     &lt;chr&gt;    
+##  1     1 BIG MAC   Coker 68-16/Coker 69-26//Coker 68-23/Cok… seed ava… BIG MAC  
+##  2     2 BOB       Nora/Florida 501                          seed ava… BOB      
+##  3     3 BROOKS    Carolee/Fulgrain/6/Fulgrain/5/CI 5106//H… seed ava… BROOKS   
+##  4     4 Caballo   RODGERS SIB // ARFOB30/C84-27             seed ava… Caballo  
+##  5     5 Cantara   FL03053-S06-15-B-S1 (LA989IBI-51-B-I1-I2… seed ava… Cantara  
+##  6     6 COKER 227 FL500//Woodgrain/CI7330/3/Moregrain/Milf… seed ava… COKER 227
+##  7     7 COKER 234 FL500//Woodgrain/CI7330/3/Moregrain/Milf… seed ava… COKER 234
+##  8     8 Coker 716 Coker 62-30 (unknown/unknown)/Beltsville… seed ava… Coker 716
+##  9     9 Corondo   NA                                        seed ava… Corondo  
+## 10    10 FL0047-J9 Horizon 474/TX97C1168                     seed ava… FL0047-J9
+## # ℹ 445 more rows</code></pre>
+<p><br></p>
 </div>
-<div id="create-seedlots-from-a-trial" class="section level4">
-<h4>Create seedlots from a Trial</h4>
-<div id="trial-can-be-specific-managament-factor-subset-of-a-trial-doesnt-seem-to-work-freezes-up" class="section level6">
-<h6>Trial can be specific managament factor subset of a trial (doesn’t
-seem to work, freezes up)</h6>
+<div id="create-accession-list" class="section level3">
+<h3>2. Create accession list</h3>
+<p>Make sure the heading is ‘accessions’</p>
+<pre class="r"><code>accessions &lt;- input_file %&gt;% 
+  mutate(accession = Name) %&gt;% # rename as accession
+  select(accession) %&gt;% 
+  distinct()  # ensure accession list has no duplicates</code></pre>
+<p><br></p>
 </div>
-<div id="can-use-accession-plot-or-sublot" class="section level6">
-<h6>Can use accession, plot, or sublot</h6>
+<div id="set-the-number-of-blocks-and-accessions-per-block" class="section level3">
+<h3>3. Set the number of blocks and accessions per block</h3>
+<p>In this example there are 455 accessions and all accessions are in
+each block. There are 2 blocks. It is a CRBD.</p>
+<pre class="r"><code>nBlks &lt;- 2   # set the block number
+
+nAccessions &lt;- nrow(accessions)  # how many accessions in the plan
+
+nPlotsPerBlk &lt;- nAccessions # set the number of plots per block</code></pre>
+<p>Create a dataframe with the accessions duplicated for each block</p>
+<pre class="r"><code>blocks &lt;- dplyr::tibble( 
+  accession=rep(accessions$accession, nBlks),
+  block= rep(1:nBlks,  each = nPlotsPerBlk ) )
+
+blocks</code></pre>
+<pre><code>## # A tibble: 910 × 2
+##    accession block
+##    &lt;chr&gt;     &lt;int&gt;
+##  1 BIG MAC       1
+##  2 BOB           1
+##  3 BROOKS        1
+##  4 Caballo       1
+##  5 Cantara       1
+##  6 COKER 227     1
+##  7 COKER 234     1
+##  8 Coker 716     1
+##  9 Corondo       1
+## 10 FL0047-J9     1
+## # ℹ 900 more rows</code></pre>
+<p><br></p>
 </div>
-<div id="accession_name-trial_name-plot_number" class="section level6">
-<h6>{accession_name}-{trial_name}-plot_number</h6>
-<p>Enter a template for naming each new seedlot. The following variables
-(surrounded by curly braces) can be used in the template and the value
-of that variable will be replaced.</p>
-<p>trial_name accession_name plot_name plot_number rep block index - an
-incrementing index number, starting with 1</p>
+<div id="randomize" class="section level3">
+<h3>4. Randomize</h3>
+<p>set.seed to make the randomization reproducible</p>
+<pre class="r"><code>floor(runif(1, 10000, 1000000))  # run to get a random number for set.seed</code></pre>
+<pre><code>## [1] 408324</code></pre>
+<pre class="r"><code>set.seed(892015) 
+randomization  &lt;- blocks %&gt;% 
+  left_join(input_file, join_by(accession)) %&gt;% ### add in metadata from input file
+  mutate(&quot;random&quot; = runif(1:nrow(blocks))) %&gt;% 
+  arrange(block,random) %&gt;%   # order by random numbers
+  mutate(plot = seq(1:nrow(blocks))) %&gt;%  # add in sequential plot numbers
+  relocate(block,plot,accession)
+
+
+randomization</code></pre>
+<pre><code>## # A tibble: 910 × 8
+##    block  plot accession          Entry Name          Pedigree `NY Seed`  random
+##    &lt;int&gt; &lt;int&gt; &lt;chr&gt;              &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;    &lt;chr&gt;       &lt;dbl&gt;
+##  1     1     1 TX20CAS1034          304 TX20CAS1034   TX14OCS… no seed … 9.58e-4
+##  2     1     2 TX20CAS1071          308 TX20CAS1071   TAMO411… no seed … 4.69e-3
+##  3     1     3 HORIZON 270           41 HORIZON 270   FL95MEO… seed ava… 5.98e-3
+##  4     1     4 NC12-3922            141 NC12-3922     Rodgers… seed ava… 9.18e-3
+##  5     1     5 FL1049-3              28 FL1049-3      FL03262… seed ava… 1.03e-2
+##  6     1     6 FLLA16083-25         347 FLLA16083-25  LA08084… seed ava… 1.19e-2
+##  7     1     7 LA10044-4            127 LA10044-4     LA97006… seed ava… 1.20e-2
+##  8     1     8 TX19CAS0002          348 TX19CAS0002   LA09030… seed ava… 1.44e-2
+##  9     1     9 TX14OCS5065          224 TX14OCS5065   05CS347… seed ava… 1.65e-2
+## 10     1    10 LA06059SBSBSB-16-S    63 LA06059SBSBS… TAMO 40… seed ava… 2.00e-2
+## # ℹ 900 more rows</code></pre>
+<pre class="r"><code># write.csv(randomization,&quot;output/SOAP_randomization.csv&quot;,row.names = FALSE)</code></pre>
 </div>
-</div>
-<div id="accession_name-trial_name-plot_plot_number" class="section level4">
-<h4>{accession_name}-{trial_name}-PLOT_{plot_number}</h4>
-<p>This format work well, it is best to have the plot number identified
-so that the harvest bag can be easily located.</p>
-<pre><code>## # A tibble: 94 × 3
-##    seedlot                                           germplasmName seed_weight_g
-##    &lt;chr&gt;                                             &lt;chr&gt;                 &lt;dbl&gt;
-##  1 NF01401B-Cornell_WinterOatPeaIntercrop_2024_Itha… NF01401B                866
-##  2 NF502_5-Cornell_WinterOatPeaIntercrop_2024_Ithac… NF502_5                 924
-##  3 TX18OCS9125-Cornell_WinterOatPeaIntercrop_2024_I… TX18OCS9125             970
-##  4 NC21-6429-Cornell_WinterOatPeaIntercrop_2024_Ith… NC21-6429              1189
-##  5 Clav 6982-Cornell_WinterOatPeaIntercrop_2024_Ith… Clav 6982               730
-##  6 AURORA-Cornell_WinterOatPeaIntercrop_2024_Ithaca… AURORA                 1039
-##  7 NF05424_2-Cornell_WinterOatPeaIntercrop_2024_Ith… NF05424_2               786
-##  8 NF13-4214-4_5-Cornell_WinterOatPeaIntercrop_2024… NF13-4214-4_5           696
-##  9 FLLA17069-52-Cornell_WinterOatPeaIntercrop_2024_… FLLA17069-52            979
-## 10 NC20-4526-Cornell_WinterOatPeaIntercrop_2024_Ith… NC20-4526              1193
-## # ℹ 84 more rows</code></pre>
-</div>
-<div id="ithaca-2025-trial-seed-needed-and-used" class="section level3">
-<h3>Ithaca 2025 trial seed needed and used</h3>
-<p>When the trial name is loooooooong it gets cumbersome to use. Let’s
-try and keep it shorter in the future.</p>
-</div>
-<div id="ithaca-2025-trial-seed-needed-and-used-1" class="section level3">
-<h3>Ithaca 2025 trial seed needed and used</h3>
-<pre class="r"><code>winter_2025_seed_used</code></pre>
-<pre><code>## # A tibble: 117 × 2
-##    seedlot                                                           seed_used_g
-##    &lt;chr&gt;                                                                   &lt;dbl&gt;
-##  1 28C2-Cornell_WinterOatFounders_2024_Headrow-PLOT_93                        81
-##  2 AURORA-Cornell_WinterOatPeaIntercrop_2024_Ithaca-PLOT_24                  162
-##  3 AVE265_59-Cornell_WinterOatFounders_2024_Headrow-PLOT_52                   81
-##  4 BLACK_MESDAG|PI93284-Cornell_WinterOatFounders_2024_Headrow-PLOT…          81
-##  5 Blaze-NA-PLOT_                                                            648
-##  6 CAV2980-Cornell_WinterOatFounders_2024_Headrow-PLOT_74                     81
-##  7 CAV3088-Cornell_WinterOatFounders_2024_Headrow-PLOT_76                     81
-##  8 CAV3163-Cornell_WinterOatFounders_2024_Headrow-PLOT_75                     81
-##  9 Cornell_WinterOatFounders_2024_Headrow-APAK-1                              24
-## 10 Cornell_WinterOatFounders_2024_Headrow-AWNLESS_CURLED-1                    24
-## # ℹ 107 more rows</code></pre>
-</div>
+<div id="formatted-output-for-printing-labels" class="section level3">
+<h3>5. Formatted output for printing labels</h3>
+<p>arranged by entry and save as a .csv for use on enevelope printer</p>
+<pre class="r"><code>randomization %&gt;% 
+  arrange(Entry) </code></pre>
+<pre><code>## # A tibble: 910 × 8
+##    block  plot accession Entry Name    Pedigree                `NY Seed`  random
+##    &lt;int&gt; &lt;int&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;                   &lt;chr&gt;       &lt;dbl&gt;
+##  1     1   380 BIG MAC       1 BIG MAC Coker 68-16/Coker 69-2… seed ava… 0.829  
+##  2     2   867 BIG MAC       1 BIG MAC Coker 68-16/Coker 69-2… seed ava… 0.907  
+##  3     1   251 BOB           2 BOB     Nora/Florida 501        seed ava… 0.533  
+##  4     2   459 BOB           2 BOB     Nora/Florida 501        seed ava… 0.00628
+##  5     1   351 BROOKS        3 BROOKS  Carolee/Fulgrain/6/Ful… seed ava… 0.747  
+##  6     2   466 BROOKS        3 BROOKS  Carolee/Fulgrain/6/Ful… seed ava… 0.0177 
+##  7     1   326 Caballo       4 Caballo RODGERS SIB // ARFOB30… seed ava… 0.679  
+##  8     2   543 Caballo       4 Caballo RODGERS SIB // ARFOB30… seed ava… 0.223  
+##  9     1   117 Cantara       5 Cantara FL03053-S06-15-B-S1 (L… seed ava… 0.236  
+## 10     2   510 Cantara       5 Cantara FL03053-S06-15-B-S1 (L… seed ava… 0.127  
+## # ℹ 900 more rows</code></pre>
+<pre class="r"><code># write.csv(&quot;output/SOAP_labels.csv&quot;,row.names = FALSE)</code></pre>
 </div>
 
 

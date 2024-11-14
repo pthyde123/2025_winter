@@ -168,7 +168,7 @@ pea_accessions
 
 # preliminary calculation
 trial <- randomization %>% 
-  mutate(plot_number = (rep(seq(1:plots_per_block), times = number_of_blocks)) +   # set the plot numbers from sequential to 3 digit with block and plots per block
+  mutate(plot_number = (rep(seq(1:plots_per_block), times = number_of_blocks)) +   # change the plot numbers from sequential to 3 digit with block and plots per block
            (rep(seq(1:number_of_blocks), each = plots_per_block)*100)) %>% 
   
   mutate(accession_name = if_else(crop == "Pea", "NO_OATS_PLANTED",accession)) %>% # change pea accessions to NO_OATS_PLANTED which is a valid t3 oat accession

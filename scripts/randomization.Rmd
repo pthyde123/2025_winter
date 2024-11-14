@@ -1,0 +1,130 @@
+---
+title: "Randomization"
+author: "Peter Hyde"
+date: "2024-11-14"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
+```
+
+```{r,  echo=FALSE}
+library(readxl)
+library(AlgDesign)
+library(tidyverse)
+library(readxl)
+```
+
+<br>
+
+<br>
+
+### Overview of general steps
+
+1.  **Import a list of accessions that are to be used in trial**
+
+2.  **Select the list and name accessions**
+
+3.  **Set blocks, and accessions per block**
+
+4.  **Randomize**
+
+5.  **Format for printing envelopes**
+
+<br>
+
+<br>
+
+### 1. Import a list of T3/oat accessions
+
+```{r,  echo=FALSE}
+
+input_file <- read_excel("data/2025_SOAP_Entries.xlsx") %>% 
+  mutate(accession = Name)
+
+input_file
+```
+
+<br>
+
+### 2. Create accession list
+
+Make sure the heading is 'accessions'
+
+```{r,  echo=TRUE}
+accessions <- input_file %>% 
+  mutate(accession = Name) %>% # rename as accession
+  select(accession) %>% 
+  distinct()  # ensure accession list has no duplicates
+```
+
+<br>
+
+
+### 3. Set the number of blocks and accessions per block
+
+In this example there are 455 accessions and all accessions are in each
+block. There are 2 blocks. It is a CRBD.
+
+```{r,  echo=TRUE}
+
+nBlks <- 2   # set the block number
+
+nAccessions <- nrow(accessions)  # how many accessions in the plan
+
+nPlotsPerBlk <- nAccessions # set the number of plots per block
+```
+
+Create a dataframe with the accessions duplicated for each block
+```{r,  echo=TRUE}
+blocks <- dplyr::tibble( 
+  accession=rep(accessions$accession, nBlks),
+  block= rep(1:nBlks,  each = nPlotsPerBlk ) )
+
+blocks
+```
+
+<br>
+
+
+### 4. Randomize
+set.seed to make the randomization reproducible 
+
+```{r,  echo=TRUE}
+
+floor(runif(1, 10000, 1000000))  # run to get a random number for set.seed
+
+set.seed(892015) 
+randomization  <- blocks %>% 
+  left_join(input_file, join_by(accession)) %>% ### add in metadata from input file
+  mutate("random" = runif(1:nrow(blocks))) %>% 
+  arrange(block,random) %>%   # order by random numbers
+  mutate(plot = seq(1:nrow(blocks))) %>%  # add in sequential plot numbers
+  relocate(block,plot,accession)
+
+
+randomization
+
+```
+
+```{r,  echo=TRUE}
+# write.csv(randomization,"output/SOAP_randomization.csv",row.names = FALSE)
+
+```
+
+### 5. Formatted output for printing labels
+
+arranged by entry and save as a .csv for use on enevelope printer
+
+```{r,  echo=TRUE}
+
+randomization %>% 
+  arrange(Entry) 
+
+# write.csv("output/SOAP_labels.csv",row.names = FALSE)
+
+```
