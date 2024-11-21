@@ -173,7 +173,7 @@ trial <- randomization %>%
   
   mutate(accession_name = if_else(crop == "Pea", "NO_OATS_PLANTED",accession)) %>% # change pea accessions to NO_OATS_PLANTED which is a valid t3 oat accession
   
-  mutate(Blaze = if_else(accession == "Blaze", "1",""))   # need to add in for each pea accession.  This will be used to create the pea managment factor.
+  mutate(Blaze = if_else(accession == "Blaze"|intercrop == "intercrop", "1",""))   # need to add in for each pea accession.  This will be used to create the pea management factor.
   
 
 

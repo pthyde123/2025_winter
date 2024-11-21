@@ -1,0 +1,352 @@
+---
+title: "Randomization to T3 Trial"
+author: "Peter Hyde"
+date: "2024-11-15"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE, message = FALSE)
+```
+
+```{r,  echo=FALSE}
+library(tidyverse)
+library(readxl)
+library(readr)
+library(kableExtra)
+```
+
+<br>
+
+<br>
+
+### Overview
+
+1.  **Import the Randomization**
+
+2.  **Import the Field Map**
+
+3.  **Enter Field Level Metadata**
+
+4.  **Calculate Field Layout Metadata**
+
+5.  **Format Plot level Metadata from Randomization**
+
+6.  **Combine Field Level Metadata and Plot Level Metadata**
+
+7.  **Save and import to T3/Oat**
+
+<br>
+
+<br>
+
+### 1. Import the Randomization
+
+The essintial data is 'plotNo', 'block', 'accession' and 'intercrop'.
+Name the dataframe randomization
+
+```{r,  echo=TRUE}
+
+randomization <- winterOatPea_2025_plot_HR <- read_csv("output/winterOatPea_2025_plot_HR.csv") %>% 
+  select(plotNo,block,accession,intercrop,crop)
+
+randomization
+```
+
+### 2. Import the Map
+
+The first column is row, it identifies the row number, my format has
+them decending. The other column names are the number of the columns.
+The map will be used to determine the row and column of each plot.
+
+```{r,  echo=TRUE}
+
+map <- CU_2025_Ithaca_WOP_PLOT_layout <- read_excel("data/2025 Oat-Pea Maps 9.24.24.xlsx", 
+                                             sheet = "plot_layout")
+
+map
+```
+
+### 3. Assign the field metadata
+
+trial_name to trial_type are needed
+
+##### trail_name convention "mother-ship"*"year"*"location"(short)*"trial abbreviation"*"type"(PLOT or HR)
+
+##### design_type options
+
+Alpha
+
+Augmented
+
+CRD
+
+genotype_data_project
+
+greenhouse
+
+Lattice
+
+p-rep
+
+RCBD
+
+RRC treatment
+
+there are more, look on T3.
+
+##### location
+Search proper for location name on T3/oat.
+
+```{r,  echo=TRUE}
+
+trial_name = "CU_2025_Ithaca_WOP_PLOT"
+breeding_program = "Intercropping Cooperative"
+location = "Ithaca, NY - Snyder"
+year = "2025"
+design_type = ""
+description =  "2025 winter oat pea intercrop trial located in Ithaca"
+trial_type = "phenotyping_trial"
+plot_width = "1.26"
+plot_length = ""
+field_size = ""     #this will be calculated and added in
+planting_date =  "2024-10-04"
+harvest_date  = ""
+
+```
+
+The upload file can be made manually using these headers
+
+```{r,  echo=TRUE}
+t3_trial_upload_headers <- c("trial_name",	"breeding_program",	"location",	"year",	"design_type",	"description",	"trial_type", "plot_width", "plot_length",	"field_size",	"planting_date", "harvest_date",	"plot_name",	"accession_name", "plot_number", "block_number",	"is_a_control",	"rep_number",	"range_number",	"row_number",	"col_number", "seedlot_name",	"num_seed_per_plot",	"weight_gram_seed_per_plot",	"entry_number", "is_private")
+
+t3_trial_upload_headers
+
+```
+
+### 4. Calculate Field Metadata
+
+Two methods for calculating total number of plots make sure they match!
+
+```{r,  echo=TRUE}
+length(randomization$plotNo) # how many plots are there?
+max(randomization$plotNo) # how many plots are there?
+
+if_else(length(randomization$plotNo) == max(randomization$plotNo), "ALL GOOD" , "DANGER")
+
+total_plots  <- length(randomization$plotNo)
+
+total_plots
+
+
+# row_number, col_number and field size in hectares
+
+randomization_row_col  <-  map %>% 
+  pivot_longer(!row, names_to = "column", values_to = "plot") %>% 
+  mutate(row_number = row) %>% 
+  mutate(col_number = as.numeric(column)) %>% 
+  mutate(plot_number = plot) %>% 
+  select(plot_number,	row_number,col_number) %>% 
+  filter(!is.na(plot_number)) %>% 
+  arrange(plot_number)
+
+row_number <- randomization_row_col$row_number
+col_number <- randomization_row_col$col_number
+
+
+field_size = ((max(randomization_row_col$row_number)) * 5.5) * 
+            ((max(randomization_row_col$col_number)) * 1.5 ) / 10000
+
+field_size  ### field size in hectares
+```
+
+### 5. Create two dataframes with trial level and plot level metadata
+
+#### Trial level meta
+
+```{r}
+
+trial_level_headers <- c("trial_name","breeding_program","location","year","design_type","description","trial_type","plot_width","plot_length","field_size","planting_date","harvest_date")
+
+
+trial_meta <- bind_cols(trial_name,  #keep in this order, to match t3 template
+          breeding_program,
+          location,
+          year,
+          design_type,
+          description,
+          trial_type,
+          plot_width,
+          plot_length,
+          field_size,
+          planting_date,
+          harvest_date)
+
+colnames(trial_meta) <- trial_level_headers
+
+# duplicate the trial level meta to match the number of plots
+trial_meta <- trial_meta  %>%  slice(rep(1:n(), each = total_plots)) 
+
+trial_meta %>% 
+  kable(align = "l") %>% 
+  kable_classic(full_width=F,position = "left")%>% 
+  scroll_box(width = "900px", height = "300px")
+
+```
+
+#### Plot level metadata
+
+```{r}
+
+plot_level_headers <- c("plot_name","accession_name","plot_number","block_number",	"is_a_control","rep_number","range_number","row_number","col_number","seedlot_name","num_seed_per_plot","weight_gram_seed_per_plot","entry_number",	"is_private")
+
+randomization
+
+number_of_blocks <- length(unique(randomization$block))
+
+```
+
+#### Quality Double Check
+
+```{r}
+
+# check if the number of plots in each block are equal
+
+plots_per_block <- unique(table(randomization$block))
+
+# if the number of plots per block are not equal "length(plots_per_block)" will be greater than 1
+stopifnot(length(unique(table(randomization$block)))==1)  
+
+# check that the plot and block numbers match up
+stopifnot(total_plots == number_of_blocks*plots_per_block)
+
+
+table(randomization$block)
+total_plots
+number_of_blocks
+plots_per_block
+```
+
+#### Pea Accession
+
+List all the pea accessions
+
+```{r}
+
+pea_accessions <- randomization %>% 
+  filter(crop == "Pea") %>%
+  select(accession) %>% 
+  unique()
+
+pea_accessions
+
+```
+
+### Data from randomization
+
+Take the randomization and convert the sequential plot numbers to 3
+digit plot numbers starting with the block followed by the sequential
+number of plots in the block. Monocrop pea plots accession is set to
+NO_OATS_PLANTED. Plots with the accession listed as Blaze (a pea) will
+identified by a 1 in a column headed Blaze. The column 'Blaze' will be
+converted by T3 into a management factor with the name 'Blaze' used as
+written in the column heading.
+
+```{r}
+
+trial <- randomization %>% 
+
+  # change the plot numbers from sequential to 3 digit with block and plots per block
+  mutate(plot_number = (rep(seq(1:plots_per_block), times = number_of_blocks)) +   
+           (rep(seq(1:number_of_blocks), each = plots_per_block)*100)) %>% 
+
+  # change pea accessions to NO_OATS_PLANTED which is a valid t3 oat accession
+  mutate(accession_name = if_else(crop == "Pea", "NO_OATS_PLANTED",accession)) %>% 
+
+  # need to add in for each pea accession.  This will be used to create the pea management factor 
+  mutate(Blaze = if_else(accession == "Blaze"|intercrop == "intercrop", "1",""))  
+
+trial
+  
+```
+
+Add in T3/oat plot level meta data. If no data is available use "" for
+blank.
+
+```{r}
+trial <- trial %>% 
+  
+  mutate(plot_name = str_c(trial_name,"_",plot_number)) %>% 
+  
+  mutate(block_number  = as.numeric(str_remove(randomization$block, "Block" ))) %>% 
+  mutate(is_a_control = "") %>% 
+  
+  mutate(rep_number = "") %>% 
+  
+  mutate(range_number = "") %>% 
+  
+  mutate(row_number = row_number) %>%
+  
+  mutate(col_number = col_number) %>% 
+  mutate(seedlot_name = "") %>% 
+  mutate(num_seed_per_plot = "") %>% 
+  mutate(weight_gram_seed_per_plot = "") %>% 	
+  mutate(entry_number = "") %>% 
+  mutate(is_private = "")
+  
+
+trial <- trial %>% 
+  select(plot_name,
+          accession_name,
+          plot_number,
+          block_number,
+          is_a_control, 
+          rep_number,               
+          range_number,
+          row_number,     
+          col_number,             
+          seedlot_name,         
+          num_seed_per_plot,      
+          weight_gram_seed_per_plot,
+          entry_number,
+          is_private,
+          Blaze)   # need to add in peas at the end, plots with peas get a 1 others are empty. This will be converted to management factor upon upload.
+
+
+trial %>% 
+  kable(align = "l") %>% 
+  kable_classic(full_width=F,position = "left")%>% 
+  scroll_box(width = "900px", height = "300px")
+
+
+```
+
+### 6. Combine Field Level Metadata and Plot Level Metadata
+
+Merge the plot level data with the trial level data.
+
+```{r}
+
+full_trial <- bind_cols( trial_meta ,trial)
+
+full_trial%>% 
+  kable(align = "l") %>% 
+  kable_classic(full_width=T,position = "left")%>% 
+  scroll_box(width = "900px", height = "300px")
+
+```
+
+### 7. Save and import in T3/oat
+
+Save the trial The csv will need to be converted to excel for upload Use
+multi-trial upload in T3/oat.
+
+```{r}
+
+## write.csv(full_trial,str_c("output/",trial_name,"_t3_upload.csv"), row.names = FALSE)
+
+
+```
