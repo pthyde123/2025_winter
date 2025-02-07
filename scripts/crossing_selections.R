@@ -104,6 +104,7 @@ cross_selections %>%
   arrange(`Sample Group`,desc(SelIndex),`Grain weight - g|CO_350:0005123`) %>% 
   filter(SelIndex > 10 | is.na(SelIndex))%>% 
   filter(`Heading - %|CO_350:0005127` > 80 | is.na(`Heading - %|CO_350:0005127`) ) %>% 
+  #arrange(Prob_P21) %>% 
   print(n= nrow(accessions_crossable))
 
 
@@ -115,11 +116,14 @@ plot_best <- c("NF13-4126-4_3","AURORA","NF01404A","NF12AS-107-4_4","NF12AS-108-
 
 # 6 winter types that appear to not need vernalization 
 # my idea is that these should have good winter heartiness, some are from NY and PA 
-winter_type <- c("PA8014-840","AWNLESS_CURLED","WINTER_TURF|CIAV996","KARCAGI","TRISPERNIA|CIAV5100","SEGER|PI306405")
+winter_type <- c("PA8014-840","AWNLESS_CURLED","WINTER_TURF|CIAV996","SEGETAL","TRISPERNIA|CIAV5100","WESTFINNISCHER_SCHWARZ")
 
 # 6 best from GRIN based on headrow seed produced and likely hood in P21 
 # "CAV3163" is very similar to CAV3088 so I replaced it, with the next best PI365616.
 headrow_best <- c("PI344827","PI365619","AVE265_59","PI365622","CAV3088","PI365616")   
+
+headrow_pop21 <- c("CW559","PI344818","AVE265_59","KARCAGI","SEGER|PI306405","DOMACA_ZOB")
+
 
 
 selections <- cross_selections %>% 
@@ -127,10 +131,23 @@ selections <- cross_selections %>%
   left_join(accession_selection_index) %>% 
   select(accession,Prob_P21,SelIndex,`GROWTH HABIT`,LODGING,`Sample Group`,YIELD,`1000 KERNEL WEIGHT`,ORIGIN_GRIN) %>%
   left_join(WOF_headrow_data) %>%
-  filter(accession %in% plot_best | accession %in% winter_type | accession %in% headrow_best )
+  filter(accession %in% plot_best | accession %in% winter_type | accession %in% headrow_pop21 )
+
+###  add in a few more from NC 
+
+NC_add <- c("Gerard 227","NC20-4526","NC20-4452","NC21-6429")
+
+NC_add <- accession_selection_index %>% 
+  select(accession,SelIndex) %>% 
+  filter(accession %in% c("Gerard 227","NC20-4526","NC20-4452","NC21-6429"))
+
+selections_2 <- bind_rows(NC_add,selections)
 
 
-write.csv(selections,'output/2025_winter_oat_crosses.csv',row.names = F)
+write.csv(selections_2,'output/2025_winter_oat_crosses.csv',row.names = F)
+
+
+
 
 
 

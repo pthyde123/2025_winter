@@ -1,19 +1,23 @@
-"accession","Prob_P21","SelIndex","GROWTH HABIT","LODGING","Sample Group","YIELD","1000 KERNEL WEIGHT","ORIGIN_GRIN","Grain weight - g|CO_350:0005123","Heading - %|CO_350:0005127"
-"NF13-4126-4_3",NA,43.62,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
-"AURORA",NA,33.25,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
-"NF01404A",NA,16.54,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
-"NF12AS-107-4_4",NA,14.41,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
-"NF12AS-108-4_1",NA,13.65,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
-"NF97405B2",NA,13.26,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
-"PA8014-840","NA",NA,"W - WINTER","NA","winter-founder-2024-oat-oea","NA",34.5,"Pennsylvania, United States",17.5,90
-"SEGER|PI306405","0.79100499999999996",NA,"W - WINTER","NA","winter-founder-2024-oat-oea","NA",20,"SkÃ¥ne lÃ¤n, Sweden",18.32,100
-"WINTER_TURF|CIAV996","0.86986699999999995",NA,"W - WINTER","2 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","208",31.5,"Maryland, United States",26.51,100
-"AWNLESS_CURLED","NA",NA,"W - WINTER","NA","winter-founder-2024-oat-oea","NA",30,"New York, United States",27.47,100
-"TRISPERNIA|CIAV5100","0.69907200000000003",NA,"S - SPRING","2 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","NA",37.6,"Netherlands",83.68,100
-"KARCAGI","0.80262500000000003",NA,"S - SPRING","NA","winter-founder-2024-oat-oea","NA",32.6,"Szolnok, Hungary",112.2,100
-"PI365616","0.70771899999999999",NA,"S - SPRING","2 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","235",26,"Ad DaqahlÄ«yah, Egypt",126.29,100
-"PI344827","0.61484300000000003",NA,"S - SPRING","2 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","342",27.9,"Pljevlja, Montenegro",132.53,100
-"PI365619","0.74133400000000005",NA,"S - SPRING","3 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","230",29.7,"Al GharbÄ«yah, Egypt",139.23,100
-"AVE265_59","0.80542899999999995",NA,"W - WINTER","NA","winter-founder-2024-oat-oea","NA",23.9,"KorÃ§Ã«, Albania",144.17,100
-"PI365622","0.72822100000000001",NA,"S - SPRING","NA","winter-founder-2024-oat-oea","NA",27.1,"Al MinyÄ, Egypt",158.56,100
-"CAV3088","0.716256",NA,"S - SPRING","8 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","264",33.6,"Tigray, Ethiopia",186.69,100
+"accession","SelIndex","Prob_P21","GROWTH HABIT","LODGING","Sample Group","YIELD","1000 KERNEL WEIGHT","ORIGIN_GRIN","Grain weight - g|CO_350:0005123","Heading - %|CO_350:0005127"
+"Gerard 227",50.56,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"NC20-4526",45.81,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"NC20-4452",40.26,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"NC21-6429",39.1,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"NF13-4126-4_3",43.62,NA,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
+"AURORA",33.25,NA,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
+"NF01404A",16.54,NA,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
+"NF12AS-107-4_4",14.41,NA,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
+"NF12AS-108-4_1",13.65,NA,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
+"NF97405B2",13.26,NA,NA,NA,"winter-2024-oat-pea",NA,NA,NA,NA,NA
+"PA8014-840",NA,"NA","W - WINTER","NA","winter-founder-2024-oat-oea","NA",34.5,"Pennsylvania, United States",17.5,90
+"SEGER|PI306405",NA,"0.79100499999999996","W - WINTER","NA","winter-founder-2024-oat-oea","NA",20,"SkÃ¥ne lÃ¤n, Sweden",18.32,100
+"WINTER_TURF|CIAV996",NA,"0.86986699999999995","W - WINTER","2 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","208",31.5,"Maryland, United States",26.51,100
+"AWNLESS_CURLED",NA,"NA","W - WINTER","NA","winter-founder-2024-oat-oea","NA",30,"New York, United States",27.47,100
+"PI344818",NA,"0.86567899999999998","S - SPRING","3 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","391",29.6,"Republika Srpska, Bosnia and Herzegovina",42.4,100
+"SEGETAL",NA,"NA","W-S - WINTER TYPE MIXED WITH SOME SPRING TYPES","8 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","325",27.2,"Kirovskaja oblast', Russian Federation",47.45,90
+"WESTFINNISCHER_SCHWARZ",NA,"0.33881","W - WINTER","NA","winter-founder-2024-oat-oea","NA",22,"Bayern, Germany",57.13,100
+"CW559",NA,"0.93934700000000004","S - SPRING","6 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","346",34.5,"Madrid, Comunidad de, Spain",61.54,100
+"TRISPERNIA|CIAV5100",NA,"0.69907200000000003","S - SPRING","2 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","NA",37.6,"Netherlands",83.68,100
+"KARCAGI",NA,"0.80262500000000003","S - SPRING","NA","winter-founder-2024-oat-oea","NA",32.6,"Szolnok, Hungary",112.2,100
+"DOMACA_ZOB",NA,"0.76795599999999997","S - SPRING","2 - (1 = NONE,  9 = SEVERE)","winter-founder-2024-oat-oea","268",27.8,"Bosnia and Herzegovina",120.98,100
+"AVE265_59",NA,"0.80542899999999995","W - WINTER","NA","winter-founder-2024-oat-oea","NA",23.9,"KorÃ§Ã«, Albania",144.17,100
