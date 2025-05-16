@@ -144,7 +144,7 @@ NC_add <- accession_selection_index %>%
 selections_2 <- bind_rows(NC_add,selections)
 
 
-write.csv(selections_2,'output/2025_winter_oat_crosses.csv',row.names = F)
+##write.csv(selections_2,'output/2025_winter_oat_crosses.csv',row.names = F)
 
 
 
