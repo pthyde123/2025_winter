@@ -84,6 +84,28 @@ hist(df$`Winter survival - percent|CO_350:0000170`)
 hist(df$`Freeze damage severity - 0-9 Rating|CO_350:0005001`)
 
 
+df2<-CU_2025_Ithaca_WOP_PLOT_phenotypes %>% 
+  select(observationUnitName,observationLevel,plotNumber,germplasmName,intercropGermplasmName,
+         `Freeze damage severity - 0-9 Rating|CO_350:0005001`,
+         `Winter survival - percent|CO_350:0000170`,
+         "Pea winter survival - percent|COMP:0000050",
+         "Pea freeze damage severity - 0-5 Rating|COMP:0000051") %>% 
+  filter(observationLevel == "plot") %>% 
+  left_join(plot_spectral, join_by(plotNumber==plot_number)) %>% 
+  mutate(winter_hardiness = ((10-`Freeze damage severity - 0-9 Rating|CO_350:0005001`)*10) * `Winter survival - percent|CO_350:0000170`) %>% 
+  mutate(intercrop = if_else(is.na(intercropGermplasmName),"mono","inter")) %>% 
+  filter(`Winter survival - percent|CO_350:0000170` > 70) %>% 
+  filter(`Freeze damage severity - 0-9 Rating|CO_350:0005001` < 8) %>% 
+  arrange(`Winter survival - percent|CO_350:0000170`)
+
+
+
+df2 %>% 
+  select(observationUnitName,germplasmName) %>% 
+  write.table("clipboard", sep="\t", row.names=FALSE)
+
+
+
 CU_2025_Ithaca_WOP_PLOT_phenotypes %>% 
   select(observationUnitName,observationLevel,plotNumber,germplasmName,intercropGermplasmName,
          `Freeze damage severity - 0-9 Rating|CO_350:0005001`,
@@ -94,9 +116,14 @@ CU_2025_Ithaca_WOP_PLOT_phenotypes %>%
   left_join(plot_spectral, join_by(plotNumber==plot_number)) %>% 
   mutate(winter_hardiness = ((10-`Freeze damage severity - 0-9 Rating|CO_350:0005001`)*10) * `Winter survival - percent|CO_350:0000170`) %>% 
   mutate(intercrop = if_else(is.na(intercropGermplasmName),"mono","inter")) %>% 
-  filter(`Winter survival - percent|CO_350:0000170` > 20) %>% 
-  filter(`Freeze damage severity - 0-9 Rating|CO_350:0005001` < 8) %>% 
-  arrange(`Winter survival - percent|CO_350:0000170`)
+ filter(germplasmName == "AURORA") %>% 
+  write.table("clipboard", sep="\t", row.names=FALSE)
 
 
+
+x <- CU_2025_Ithaca_WOP_PLOT_phenotypes %>% 
+  filter(germplasmName == "NC20-4452")
+
+x <- CU_2025_Ithaca_WOP_PLOT_phenotypes %>% 
+  filter(germplasmName == "NC21-6610")
 
